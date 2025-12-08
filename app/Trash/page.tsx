@@ -36,7 +36,7 @@ export default function Trash() {
     };
 
     fetchTrashNotes();
-  }, []);
+  });
 
   useEffect(() => {
     const GetUser = async () => {
