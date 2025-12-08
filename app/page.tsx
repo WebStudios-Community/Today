@@ -39,7 +39,7 @@ export default function Home() {
     };
 
     getNotes();
-  });
+  }, []);
 
   useEffect(() => {
     const GetUser = async () => {
@@ -66,7 +66,7 @@ export default function Home() {
     };
 
     getNotes();
-  });
+  }, []);
 
   async function ADDNotes() {
     const noteID = user?.id || GuestId;
