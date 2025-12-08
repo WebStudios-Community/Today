@@ -1,6 +1,7 @@
 "use client";
 
 import { supabase } from "@/app/supabaseClient";
+import { User } from "@supabase/supabase-js";
 import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,6 +18,7 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [notes, setNotes] = useState<Notes[] | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [bold, setBold] = useState(false);
   const [italic, setItalic] = useState(false);
   const [under, setUnder] = useState(false);
@@ -33,15 +35,26 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
     getNotes();
   }, []);
 
+  useEffect(() => {
+    const GetUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setUser(user);
+    };
+
+    GetUser();
+  });
+
   async function SaveNotes(note: Notes) {
     const { data, error } = await supabase
       .from("Notes")
       .update({
-        id: note.id,
         Name: note.Name,
         Text: note.Text,
       })
-      .eq("id", id);
+      .eq("id", note.id);
 
     if (error) console.log(error);
     if (data) console.log(data);
@@ -51,156 +64,263 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div className="text-neutral-400">
-      <div>
+      <div className="md:hidden flex flex-col items-center justify-center p-4 bg-neutral-900 min-h-screen">
         <div className="m-5">
           <Link href="/">Home</Link>
         </div>
-        <div>
+        {notes?.map((note, i) => (
+          <div
+            key={note.id}
+            className="w-full mb-8 bg-neutral-800 rounded-2xl p-4 shadow-lg"
+          >
+            <input
+              className="w-full text-xl md:text-2xl outline-none py-3 px-4 rounded-lg mb-4 bg-neutral-700 text-white placeholder:text-neutral-400"
+              value={note.Name}
+              onChange={(e) => {
+                setNotes((prev) => {
+                  if (!prev) return prev;
+                  const updated = [...prev];
+                  updated[i] = { ...updated[i], Name: e.target.value };
+                  return updated;
+                });
+              }}
+              placeholder="Note Name"
+            />
+            <div className="text-sm text-neutral-400 mb-4 text-right">
+              {new Date(note.created_at).toLocaleString("sr-RS", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: false,
+              })}
+            </div>
+            <div className="flex flex-wrap gap-3 mb-4 justify-center">
+              <button
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
+                  bold ? "bg-amber-500" : "bg-neutral-700"
+                }`}
+                onClick={() => setBold(!bold)}
+              >
+                B
+              </button>
+              <button
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
+                  italic ? "bg-amber-500" : "bg-neutral-700"
+                } italic`}
+                onClick={() => setItalic(!italic)}
+              >
+                i
+              </button>
+              <button
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
+                  under ? "bg-amber-500" : "bg-neutral-700"
+                }`}
+                onClick={() => {
+                  if (strike) setStrike(false);
+                  setUnder(!under);
+                }}
+              >
+                U
+              </button>
+              <button
+                className={`w-10 h-10 rounded-lg flex items-center justify-center text-white ${
+                  strike ? "bg-amber-500" : "bg-neutral-700"
+                }`}
+                onClick={() => {
+                  if (under) setUnder(false);
+                  setStrike(!strike);
+                }}
+              >
+                S
+              </button>
+              <div className="flex gap-2">
+                <button
+                  className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                    vere === "left" ? "bg-amber-500" : "bg-neutral-700"
+                  }`}
+                  onClick={() => setVere("left")}
+                >
+                  <AlignLeft size={16} />
+                </button>
+                <button
+                  className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                    vere === "center" ? "bg-amber-500" : "bg-neutral-700"
+                  }`}
+                  onClick={() => setVere("center")}
+                >
+                  <AlignCenter size={16} />
+                </button>
+                <button
+                  className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                    vere === "right" ? "bg-amber-500" : "bg-neutral-700"
+                  }`}
+                  onClick={() => setVere("right")}
+                >
+                  <AlignRight size={16} />
+                </button>
+              </div>
+            </div>
+            <textarea
+              className={`w-full h-48 p-3 rounded-lg resize-none outline-none bg-neutral-700 text-white ${
+                bold ? "text-2xl" : "text-xl"
+              } ${italic && "italic"} ${under && "underline"} ${
+                strike && "line-through"
+              } ${vere === "left" && "text-left"} ${
+                vere === "center" && "text-center"
+              } ${vere === "right" && "text-right"}`}
+              value={note.Text}
+              onChange={(e) => {
+                setNotes((prev) => {
+                  if (!prev) return prev;
+                  const updated = [...prev];
+                  updated[i] = { ...updated[i], Text: e.target.value };
+                  return updated;
+                });
+              }}
+              placeholder="Note Text"
+            />
+            <div className="mt-4 flex justify-end">
+              <button
+                onClick={() => SaveNotes(note)}
+                className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="md:flex hidden">
+        <div className="m-5">
+          <Link href="/">Home</Link>
+        </div>
+        <div className="flex items-center justify-center w-full h-screen">
           {notes?.map((note, i) => (
-            <div key={note.id}>
-              <div className="m-10 flex flex-col gap-10">
+            <div key={note.id} className="px-4 mb-8">
+              <div className="flex flex-col gap-6 w-full border border-neutral-800 bg-neutral-800 px-10 py-10 rounded-xl">
                 <input
-                  className="text-2xl border-transparent outline-0 py-5 pl-5 rounded-4xl"
+                  className="w-120 text-xl py-4 px-5 rounded-2xl outline-none border border-neutral-700 bg-neutral-700 text-white placeholder:text-neutral-400"
                   value={note.Name}
                   onChange={(e) => {
                     setNotes((prev) => {
                       if (!prev) return prev;
-
                       const updated = [...prev];
-                      updated[i] = {
-                        ...updated[i],
-                        Name: e.target.value,
-                      };
-
+                      updated[i] = { ...updated[i], Name: e.target.value };
                       return updated;
                     });
                   }}
                   placeholder="Note Name"
                 />
-                <div className="flex items-center justify-between">
-                  <div>
-                    {new Date(note.created_at).toLocaleString("sr-RS", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    })}
+                <div className="text-sm text-neutral-400 text-right">
+                  {new Date(note.created_at).toLocaleString("sr-RS", {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: false,
+                  })}
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white cursor-pointer ${
+                      bold ? "bg-amber-500 text-black" : "bg-neutral-700"
+                    }`}
+                    onClick={() => setBold(!bold)}
+                  >
+                    B
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`${
-                        bold
-                          ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120"
-                          : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                      } flex items-center justify-center cursor-pointer`}
-                      onClick={() => setBold(!bold)}
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white cursor-pointer ${
+                      italic
+                        ? "bg-amber-500 italic text-black"
+                        : "bg-neutral-700"
+                    }`}
+                    onClick={() => setItalic(!italic)}
+                  >
+                    i
+                  </div>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white cursor-pointer ${
+                      under
+                        ? "bg-amber-500 underline text-black"
+                        : "bg-neutral-700"
+                    }`}
+                    onClick={() => {
+                      if (strike) setStrike(false);
+                      setUnder(!under);
+                    }}
+                  >
+                    U
+                  </div>
+                  <div
+                    className={`w-10 h-10 rounded-xl flex items-center justify-center text-white cursor-pointer ${
+                      strike
+                        ? "bg-amber-500 line-through text-black"
+                        : "bg-neutral-700"
+                    }`}
+                    onClick={() => {
+                      if (under) setUnder(false);
+                      setStrike(!strike);
+                    }}
+                  >
+                    S
+                  </div>
+                  <div className="flex gap-2">
+                    <button
+                      className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                        vere === "left" ? "bg-amber-500" : "bg-neutral-700"
+                      }`}
+                      onClick={() => setVere("left")}
                     >
-                      B
-                    </div>
-                    <div
-                      className={`${
-                        italic
-                          ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 italic"
-                          : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                      } flex items-center justify-center cursor-pointer`}
-                      onClick={() => setItalic(!italic)}
+                      <AlignLeft size={16} />
+                    </button>
+                    <button
+                      className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                        vere === "center" ? "bg-amber-500" : "bg-neutral-700"
+                      }`}
+                      onClick={() => setVere("center")}
                     >
-                      i
-                    </div>
-                    <div
-                      className={`${
-                        under
-                          ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 underline"
-                          : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                      } flex items-center justify-center cursor-pointer`}
-                      onClick={() => {
-                        if (strike) setStrike(false);
-                        setUnder(!under);
-                      }}
+                      <AlignCenter size={16} />
+                    </button>
+                    <button
+                      className={`w-10 h-10 flex items-center justify-center text-white rounded-lg ${
+                        vere === "right" ? "bg-amber-500" : "bg-neutral-700"
+                      }`}
+                      onClick={() => setVere("right")}
                     >
-                      U
-                    </div>
-                    <div
-                      className={`${
-                        strike
-                          ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 line-through"
-                          : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                      } flex items-center justify-center cursor-pointer`}
-                      onClick={() => {
-                        if (under) setUnder(false);
-                        setStrike(!strike);
-                      }}
-                    >
-                      S
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <div
-                        className={`${
-                          vere === "left"
-                            ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 line-through"
-                            : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                        } flex items-center justify-center cursor-pointer`}
-                        onClick={() => setVere("left")}
-                      >
-                        <AlignLeft size={15} />
-                      </div>
-                      <div
-                        className={`${
-                          vere === "center"
-                            ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 line-through"
-                            : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                        } flex items-center justify-center cursor-pointer`}
-                        onClick={() => setVere("center")}
-                      >
-                        <AlignCenter size={15} />
-                      </div>
-                      <div
-                        className={`${
-                          vere === "right"
-                            ? "bg-neutral-800 border border-neutral-800 w-8 h-8 rounded-xl text-sm scale-120 line-through"
-                            : "border border-neutral-800 w-8 h-8 rounded-xl text-sm"
-                        } flex items-center justify-center cursor-pointer`}
-                        onClick={() => setVere("right")}
-                      >
-                        <AlignRight size={15} />
-                      </div>
-                    </div>
+                      <AlignRight size={16} />
+                    </button>
                   </div>
                 </div>
                 <textarea
-                  contentEditable
-                  className={`border-transparent outline-0 py-5 pl-5 rounded-xl h-80 resize-none ${
-                    bold ? "text-2xl" : "text-xl"
+                  className={`w-full h-48 p-5 rounded-2xl resize-none outline-none border border-neutral-700 bg-neutral-700 text-white placeholder:text-neutral-400 ${
+                    bold ? "text-xl" : "text-lg"
                   } ${italic && "italic"} ${under && "underline"} ${
                     strike && "line-through"
-                  } ${vere === "left" && "text-start"} ${
+                  } ${vere === "left" && "text-left"} ${
                     vere === "center" && "text-center"
-                  } ${vere === "right" && "text-end"}`}
+                  } ${vere === "right" && "text-right"}`}
                   value={note.Text}
                   onChange={(e) => {
                     setNotes((prev) => {
                       if (!prev) return prev;
-
                       const updated = [...prev];
-                      updated[i] = {
-                        ...updated[i],
-                        Text: e.target.value,
-                      };
-
+                      updated[i] = { ...updated[i], Text: e.target.value };
                       return updated;
                     });
                   }}
                   placeholder="Note Text"
                 />
-                <div className="flex items-center justify-end">
-                  <div
+                <div className="flex justify-end mt-2">
+                  <button
                     onClick={() => SaveNotes(note)}
-                    className="text-xl border border-neutral-800 w-40 flex items-center justify-center py-4 rounded-xl hover:bg-neutral-800 hover:scale-110 active:scale-100 transition-all cursor-pointer"
+                    className="px-6 py-3 rounded-xl border border-amber-500 bg-amber-500 text-white"
                   >
-                    <div>Saved</div>
-                  </div>
+                    Save
+                  </button>
                 </div>
               </div>
             </div>
