@@ -26,7 +26,12 @@ export default function Trash() {
 
   useEffect(() => {
     const fetchTrashNotes = async () => {
-      const { data } = await supabase.from("Trash").select("*");
+      const noteID = user?.id || GuestId;
+      if (!noteID) return;
+      const { data } = await supabase
+        .from("Trash")
+        .select("*")
+        .eq("user_id", noteID);
       setTrashNotes(data);
     };
 
@@ -86,7 +91,7 @@ export default function Trash() {
       <h1 className="text-2xl font-bold mb-4 ml-10 mt-10">Trash</h1>
       <div className="flex flex-col gap-2">
         {trashNotes && trashNotes.length > 0 ? (
-          <div>
+          <div className="flex flex-col gap-5">
             {trashNotes?.map((note) => (
               <div
                 key={note.id}
