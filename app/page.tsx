@@ -60,7 +60,7 @@ export default function Home() {
           <div>
             {notes && notes.length === 0 ? (
               <div className="mt-10 flex items-center gap-4">
-                <div>
+                <div className="flex items-center gap-2">
                   Notes is Empty <Notebook size={15} />,
                 </div>
                 <div
