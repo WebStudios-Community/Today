@@ -59,7 +59,7 @@ export default function Home() {
         <div>
           <div>
             {notes && notes.length === 0 ? (
-              <div className="mt-10 flex items-center gap-5">
+              <div className="mt-10 flex items-center gap-4">
                 <div>Notes is Empty,</div>
                 <div
                   className="underline hover:text-neutral-300 transition-colors cursor-pointer"
