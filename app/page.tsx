@@ -24,6 +24,7 @@ export default function Home() {
   const [notes, setNotes] = useState<Notes[] | null>(null);
   const [trashs, setTrashs] = useState<Trash[] | null>(null);
   const [user, setUser] = useState<User | null>(null);
+  const [refresh, setRefresh] = useState(false);
   const GuestId = useGuestID();
 
   useEffect(() => {
@@ -39,7 +40,7 @@ export default function Home() {
     };
 
     getNotes();
-  });
+  }, [refresh]);
 
   useEffect(() => {
     const GetUser = async () => {
@@ -66,7 +67,7 @@ export default function Home() {
     };
 
     getNotes();
-  });
+  }, [refresh]);
 
   async function ADDNotes() {
     const noteID = user?.id || GuestId;
@@ -84,7 +85,9 @@ export default function Home() {
       const newNoteId = data[0].id;
       router.push(`/Note/${newNoteId}`);
     }
-    if (error) console.log(error);
+    if (!error) {
+      setRefresh((prev) => !prev);
+    }
   }
   async function DeleteNotes(note: Notes, id: number) {
     const noteID = user?.id || GuestId;
@@ -102,7 +105,9 @@ export default function Home() {
       .eq("id", id);
 
     if (data) console.log(data);
-    if (error) console.log(error);
+    if (!error) {
+      setRefresh((prev) => !prev);
+    }
   }
 
   return (

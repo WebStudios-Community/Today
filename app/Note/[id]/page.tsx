@@ -23,6 +23,7 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
   const [italic, setItalic] = useState(false);
   const [under, setUnder] = useState(false);
   const [strike, setStrike] = useState(false);
+  const [refresh, setRefresh] = useState(false);
   const [vere, setVere] = useState("");
 
   useEffect(() => {
@@ -33,7 +34,7 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
     };
 
     getNotes();
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
     const GetUser = async () => {
@@ -56,8 +57,10 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
       })
       .eq("id", note.id);
 
-    if (error) console.log(error);
     if (data) console.log(data);
+    if (!error) {
+      setRefresh((prev) => !prev);
+    }
 
     router.push("/");
   }
