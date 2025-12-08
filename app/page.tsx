@@ -116,6 +116,15 @@ export default function Home() {
           >
             <Plus size={20} />
           </div>
+          <Link href="/Trash" className="absolute right-5">
+            <div>
+              {trashs && trashs.length > 0 && (
+                <div>
+                  <div>Trash</div>
+                </div>
+              )}
+            </div>
+          </Link>
         </div>
         <div>
           <div>
