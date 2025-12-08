@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus, Trash } from "lucide-react";
+import { Notebook, Plus, Trash } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "./supabaseClient";
 import Link from "next/link";
@@ -60,7 +60,9 @@ export default function Home() {
           <div>
             {notes && notes.length === 0 ? (
               <div className="mt-10 flex items-center gap-4">
-                <div>Notes is Empty,</div>
+                <div>
+                  Notes is Empty <Notebook size={15} />,
+                </div>
                 <div
                   className="underline hover:text-neutral-300 transition-colors cursor-pointer"
                   onClick={ADDNotes}
