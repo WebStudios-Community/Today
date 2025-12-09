@@ -12,41 +12,40 @@ interface Notes {
   created_at: Date;
   Name: string;
   Text: string;
+  bold: boolean;
+  italic: boolean;
+  under: boolean;
+  strike: boolean;
+  vere: string;
 }
 
 export default function Notes({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [notes, setNotes] = useState<Notes[] | null>(null);
-  const [user, setUser] = useState<User | null>(null);
   const [bold, setBold] = useState(false);
   const [italic, setItalic] = useState(false);
   const [under, setUnder] = useState(false);
   const [strike, setStrike] = useState(false);
   const [refresh, setRefresh] = useState(false);
-  const [vere, setVere] = useState("");
+  const [vere, setVere] = useState("left");
 
   useEffect(() => {
     const getNotes = async () => {
       const { data } = await supabase.from("Notes").select("*").eq("id", id);
 
+      const note = data?.[0];
+
       setNotes(data);
+      setBold(note?.bold ?? false);
+      setItalic(note?.italic ?? false);
+      setUnder(note?.under ?? false);
+      setStrike(note?.strike ?? false);
+      setVere(note?.vere ?? "left");
     };
 
     getNotes();
   }, [refresh]);
-
-  useEffect(() => {
-    const GetUser = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      setUser(user);
-    };
-
-    GetUser();
-  });
 
   async function SaveNotes(note: Notes) {
     const { data, error } = await supabase
@@ -54,6 +53,11 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
       .update({
         Name: note.Name,
         Text: note.Text,
+        bold: bold,
+        italic: italic,
+        under: under,
+        strike: strike,
+        vere: vere,
       })
       .eq("id", note.id);
 

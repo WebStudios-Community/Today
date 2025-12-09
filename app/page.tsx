@@ -77,7 +77,7 @@ export default function Home() {
       .insert({
         user_id: noteID,
         Name: "Default Name",
-        Text: "Ovo je primer teksta koji ide u belešku.",
+        Text: "Default Text",
       })
       .select();
 
@@ -151,9 +151,13 @@ export default function Home() {
                   {notes?.map((note) => (
                     <div key={note.id}>
                       <div className="relative flex flex-col gap-5 border border-neutral-800 bg-neutral-800 p-2 w-70 rounded-xl">
-                        <div>{note.Name}</div>
-                        <div>{note.Text.slice(0, 25)}...</div>
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="text-center border border-neutral-700 py-2 bg-neutral-700 rounded-xl">
+                          {note.Name}
+                        </div>
+                        <div className="text-center">
+                          {note.Text.slice(0, 25)}...
+                        </div>
+                        <div className="flex items-center justify-between gap-3 ml-2 mr-2">
                           <Link href={`/Note/${note.id}`}>
                             <div>View</div>
                           </Link>
@@ -214,9 +218,13 @@ export default function Home() {
                   {notes?.map((note) => (
                     <div key={note.id}>
                       <div className="relative flex flex-col gap-5 border border-neutral-800 bg-neutral-800 p-2 w-70 rounded-xl">
-                        <div>{note.Name}</div>
-                        <div>{note.Text.slice(0, 25)}...</div>
-                        <div className="flex items-center justify-end gap-3">
+                        <div className="text-center border border-neutral-700 py-2 bg-neutral-700 rounded-xl">
+                          {note.Name}
+                        </div>
+                        <div className="text-center">
+                          {note.Text.slice(0, 25)}...
+                        </div>
+                        <div className="flex items-center justify-between gap-3 ml-2 mr-2">
                           <Link href={`/Note/${note.id}`}>
                             <div>View</div>
                           </Link>
