@@ -29,6 +29,7 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
   const [strike, setStrike] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [vere, setVere] = useState("left");
+  const [buttonText, setButtonText] = useState("Invite");
 
   useEffect(() => {
     const getNotes = async () => {
@@ -321,7 +322,21 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
                   }}
                   placeholder="Note Text"
                 />
-                <div className="flex justify-end mt-2">
+                <div className="flex justify-between mt-2">
+                  <button
+                    onClick={() => {
+                      const inviteURL = `${window.location.origin}/Note/${note.id}`;
+                      navigator.clipboard.writeText(inviteURL).then(() => {
+                        setButtonText("Copied!");
+                        setTimeout(() => {
+                          setButtonText("Invite");
+                        }, 1000);
+                      });
+                    }}
+                    className="px-6 py-3 rounded-xl border border-amber-500 bg-amber-500 text-white cursor-pointer"
+                  >
+                    {buttonText}
+                  </button>
                   <button
                     onClick={() => SaveNotes(note)}
                     className="px-6 py-3 rounded-xl border border-amber-500 bg-amber-500 text-white"
