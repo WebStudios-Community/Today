@@ -439,12 +439,6 @@ export default function Home() {
                       >
                         View
                       </button>
-                      <button
-                        className="border border-red-400 bg-red-400 p-2 rounded-full hover:bg-red-500 transition-all"
-                        onClick={() => DeleteNotes(note, note.id)}
-                      >
-                        <Trash size={20} />
-                      </button>
                     </div>
                   </div>
                 </div>
