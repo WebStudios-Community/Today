@@ -297,70 +297,77 @@ export default function Home() {
                   ))}
                 {notes
                   ?.filter((note) => note.type === "group")
-                  ?.map((note) => (
-                    <div key={note.id}>
-                      <div
-                        style={{
-                          backgroundColor: color[note.id] || "#171717",
-                        }}
-                        className="relative flex flex-col gap-5 border border-neutral-900 p-2 w-70 rounded-xl text-white"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center justify-center gap-5 text-amber-400">
-                            <FileText size={20} />
-                            <div>Group Notes</div>
+                  ?.map((note) => {
+                    const noteID = user?.id || GuestId;
+                    const isOwner = note.owner_id === noteID;
+
+                    return (
+                      <div key={note.id}>
+                        <div
+                          style={{
+                            backgroundColor: color[note.id] || "#171717",
+                          }}
+                          className="relative flex flex-col gap-5 border border-neutral-900 p-2 w-70 rounded-xl text-white"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-center gap-5 text-amber-400">
+                              <FileText size={20} />
+                              <div>Group Notes</div>
+                            </div>
+                            <div className="relative">
+                              <div
+                                className="w-6 h-6 rounded-full border border-neutral-600 cursor-pointer"
+                                style={{ backgroundColor: color[note.id] }}
+                                onClick={() =>
+                                  setShow((prev) =>
+                                    prev === note.id ? null : note.id
+                                  )
+                                }
+                              ></div>
+                              {show === note.id && (
+                                <div className="absolute left-9 top-0 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl w-max">
+                                  {colors.map((c) => (
+                                    <div
+                                      key={c}
+                                      onClick={() =>
+                                        setColor((prev) => ({
+                                          ...prev,
+                                          [note.id]: c,
+                                        }))
+                                      }
+                                      className="w-7 h-7 rounded-full cursor-pointer border border-neutral-700"
+                                      style={{ backgroundColor: c }}
+                                    ></div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
                           </div>
-                          <div className="relative">
-                            <div
-                              className="w-6 h-6 rounded-full border border-neutral-600 cursor-pointer"
-                              style={{ backgroundColor: color[note.id] }}
-                              onClick={() =>
-                                setShow((prev) =>
-                                  prev === note.id ? null : note.id
-                                )
-                              }
-                            ></div>
-                            {show === note.id && (
-                              <div className="absolute right-0 top-8 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl w-max">
-                                {colors.map((c) => (
-                                  <div
-                                    key={c}
-                                    onClick={() =>
-                                      setColor((prev) => ({
-                                        ...prev,
-                                        [note.id]: c,
-                                      }))
-                                    }
-                                    className="w-7 h-7 rounded-full cursor-pointer border border-neutral-700"
-                                    style={{ backgroundColor: c }}
-                                  ></div>
-                                ))}
+                          <div className="text-center border border-amber-500 py-2 bg-amber-500 rounded-xl">
+                            {note.Name}
+                          </div>
+                          <div className="text-center">
+                            {note.Text.slice(0, 25)}...
+                          </div>
+                          <div className="flex items-center justify-between gap-3 ml-2 mr-2">
+                            <Link href={`/GroupNote/${note.id}`}>
+                              <div className="border border-amber-500 bg-amber-500 hover:border-neutral-600 hover:bg-amber-600 transition-all p-2 rounded-full">
+                                View
+                              </div>
+                            </Link>
+                            {isOwner && (
+                              <div
+                                className="border border-red-400 bg-red-400 p-2 rounded-full hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer"
+                                onClick={() => DeleteNotes(note, note.id)}
+                              >
+                                <Trash size={20} />
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="text-center border border-amber-500 py-2 bg-amber-500 rounded-xl">
-                          {note.Name}
-                        </div>
-                        <div className="text-center">
-                          {note.Text.slice(0, 25)}...
-                        </div>
-                        <div className="flex items-center justify-between gap-3 ml-2 mr-2">
-                          <Link href={`/GroupNote/${note.id}`}>
-                            <div className="border border-amber-500 bg-amber-500 hover:border-neutral-600 hover:bg-amber-600 transition-all p-2 rounded-full">
-                              View
-                            </div>
-                          </Link>
-                          <div
-                            className="border border-red-400 bg-red-400 p-2 rounded-full hover:bg-red-500 hover:border-red-500 transition-all cursor-pointer"
-                            onClick={() => DeleteNotes(note, note.id)}
-                          >
-                            <Trash size={20} />
-                          </div>
-                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
               </div>
             )}
           </div>
