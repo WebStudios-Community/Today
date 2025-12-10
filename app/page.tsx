@@ -171,11 +171,11 @@ export default function Home() {
       .eq("id", id);
 
     if (data) console.log(data);
-    if (!error) {
-      setRefresh((prev) => !prev);
+    if (error) {
+      console.log(error);
     }
+    setRefresh((prev) => !prev);
   }
-
   async function JoinGroup(noteId: string) {
     const noteID = user?.id || GuestId;
     if (!noteID) return;
