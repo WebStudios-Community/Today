@@ -114,9 +114,10 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
       .eq("type", "group");
 
     if (data) console.log(data);
-    if (!error) {
-      setRefresh((prev) => !prev);
+    if (error) {
+      console.log(error);
     }
+    setRefresh((prev) => !prev);
   }
 
   async function InviteUser(note: Notes) {
