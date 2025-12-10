@@ -331,7 +331,7 @@ export default function Home() {
                           }
                         ></div>
                         {show === note.id && (
-                          <div className="absolute right-0 top-8 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl border border-neutral-700">
+                          <div className="absolute right-0 w-max top-8 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl border border-neutral-700">
                             {colors.map((c) => (
                               <div
                                 key={c}
@@ -401,7 +401,7 @@ export default function Home() {
                           }
                         ></div>
                         {show === note.id && (
-                          <div className="absolute right-0 top-8 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl border border-neutral-700">
+                          <div className="absolute right-0 w-max top-8 z-50 grid grid-cols-5 gap-2 bg-neutral-800 p-3 rounded-xl border border-neutral-700">
                             {colors.map((c) => (
                               <div
                                 key={c}
