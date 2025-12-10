@@ -1,8 +1,15 @@
 "use client";
 
+import { useGuestID } from "@/app/GuestID";
 import { supabase } from "@/app/supabaseClient";
 import { User } from "@supabase/supabase-js";
-import { AlignCenter, AlignLeft, AlignRight } from "lucide-react";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  User2,
+  UserRoundPlus,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { use, useEffect, useState } from "react";
@@ -17,18 +24,24 @@ interface Notes {
   under: boolean;
   strike: boolean;
   vere: string;
+  type: string;
+  members: number;
+  owner_id: string;
 }
 
 export default function Notes({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const [notes, setNotes] = useState<Notes[] | null>(null);
+  const [note, setNote] = useState<Notes | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [bold, setBold] = useState(false);
   const [italic, setItalic] = useState(false);
   const [under, setUnder] = useState(false);
   const [strike, setStrike] = useState(false);
   const [refresh, setRefresh] = useState(false);
   const [vere, setVere] = useState("left");
+  const GuestId = useGuestID();
 
   useEffect(() => {
     const getNotes = async () => {
@@ -36,7 +49,7 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
         .from("Notes")
         .select("*")
         .eq("id", id)
-        .eq("type", "private");
+        .eq("type", "group");
 
       const note = data?.[0];
 
@@ -49,7 +62,33 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
     };
 
     getNotes();
-  }, [refresh]);
+  }, [refresh, id]);
+  useEffect(() => {
+    if (!note?.id) return;
+
+    const addMember = async () => {
+      await supabase
+        .from("Notes")
+        .update({ members: (note.members || 0) + 1 })
+        .eq("id", note.id)
+        .eq("type", "group");
+
+      setRefresh((prev) => !prev);
+    };
+
+    addMember();
+  }, [note?.id, refresh]);
+  useEffect(() => {
+    const GetUser = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      setUser(user);
+    };
+
+    GetUser();
+  });
 
   async function SaveNotes(note: Notes) {
     const { data, error } = await supabase
@@ -64,14 +103,31 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
         vere: vere,
       })
       .eq("id", note.id)
-      .eq("type", "private");
+      .eq("type", "group");
 
     if (data) console.log(data);
     if (!error) {
       setRefresh((prev) => !prev);
     }
+    router.push(`/`);
+  }
 
-    router.push("/");
+  async function InviteUser(note: Notes) {
+    const noteID = user?.id || GuestId;
+    if (!noteID) return;
+    const { data, error } = await supabase
+      .from("Notes")
+      .update({
+        owner_id: noteID,
+      })
+      .eq("id", note.id)
+      .eq("type", "group");
+    if (!error) {
+      setRefresh((prev) => !prev);
+    }
+    if (data) console.log(data);
+    navigator.clipboard.writeText(`${note.id}`);
+    alert("Copied to clipboard!");
   }
 
   return (
@@ -85,6 +141,10 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
             key={note.id}
             className="w-full mb-8 bg-neutral-800 rounded-2xl p-4 shadow-lg"
           >
+            <div className="flex items-center gap-2 m-5">
+              <User2 size={20} />
+              <div>{note.members || 0}</div>
+            </div>
             <input
               className="w-full text-xl md:text-2xl outline-none py-3 px-4 rounded-lg mb-4 bg-neutral-700 text-white placeholder:text-neutral-400"
               value={note.Name}
@@ -193,7 +253,13 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
               }}
               placeholder="Note Text"
             />
-            <div className="mt-4 flex justify-end">
+            <div className="mt-4 flex justify-between">
+              <button
+                onClick={() => InviteUser(note)}
+                className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform"
+              >
+                <UserRoundPlus size={20} />
+              </button>
               <button
                 onClick={() => SaveNotes(note)}
                 className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:scale-105 transition-transform"
@@ -212,6 +278,10 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
           {notes?.map((note, i) => (
             <div key={note.id} className="px-4 mb-8">
               <div className="flex flex-col gap-6 w-full border border-neutral-800 bg-neutral-800 px-10 py-10 rounded-xl">
+                <div className="flex items-center gap-2">
+                  <User2 size={20} />
+                  <div>{note.members || 0}</div>
+                </div>
                 <input
                   className="w-120 text-xl py-4 px-5 rounded-2xl outline-none border border-neutral-700 bg-neutral-700 text-white placeholder:text-neutral-400"
                   value={note.Name}
@@ -326,10 +396,16 @@ export default function Notes({ params }: { params: Promise<{ id: string }> }) {
                   }}
                   placeholder="Note Text"
                 />
-                <div className="flex justify-end mt-2">
+                <div className="mt-4 flex justify-between">
+                  <button
+                    onClick={() => InviteUser(note)}
+                    className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-all cursor-pointer"
+                  >
+                    <UserRoundPlus size={20} />
+                  </button>
                   <button
                     onClick={() => SaveNotes(note)}
-                    className="px-6 py-3 rounded-xl border border-amber-500 bg-amber-500 text-white"
+                    className="bg-amber-500 text-white px-6 py-3 rounded-lg hover:bg-amber-600 transition-all cursor-pointer"
                   >
                     Save
                   </button>
