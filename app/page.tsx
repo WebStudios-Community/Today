@@ -279,7 +279,7 @@ export default function Home() {
             <div className="mt-10 flex-1 flex flex-col items-center gap-5 px-4">
               {privateNotes?.map((note) => (
                 <div key={note.id} className="w-full max-w-md">
-                  <div className="relative flex flex-col gap-5 border border-neutral-800 bg-neutral-800 p-4 rounded-xl text-white">
+                  <div className="relative flex flex-col gap-5 border border-neutral-800 bg-neutral-800 p-4 rounded-xl text-white w-70">
                     <div className="flex items-center justify-start">
                       <div className="flex items-center justify-center gap-3 text-amber-400">
                         <FileText size={20} />
@@ -313,7 +313,7 @@ export default function Home() {
                 <div key={note.id} className="w-full max-w-md">
                   <div
                     style={{ backgroundColor: color[note.id] || "#171717" }}
-                    className="relative flex flex-col gap-5 border border-neutral-800 p-4 rounded-xl text-white"
+                    className="relative flex flex-col gap-5 border border-neutral-800 p-4 rounded-xl text-white w-70"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-amber-400">
@@ -383,7 +383,7 @@ export default function Home() {
                 <div key={note.id} className="w-full max-w-md">
                   <div
                     style={{ backgroundColor: color[note.id] || "#171717" }}
-                    className="relative flex flex-col gap-5 border border-neutral-800 p-4 rounded-xl text-white"
+                    className="relative flex flex-col gap-5 border border-neutral-800 p-4 rounded-xl text-white w-70"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3 text-amber-400">
