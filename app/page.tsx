@@ -75,17 +75,7 @@ export default function Home() {
 
   useEffect(() => {
     const getNotes = async () => {
-      const { data, error } = await supabase
-        .from("Notes")
-        .select("*")
-        .eq("user_id", userId)
-        .or(
-          `
-        and(type.eq.private,user_id.eq.${userId}),
-        and(type.eq.group,owner_id.eq.${userId}),
-        and(type.eq.group,member_id.eq.${userId})
-        `
-        );
+      const { data, error } = await supabase.from("Notes").select("*");
 
       if (!error) {
         setNotes(data);
