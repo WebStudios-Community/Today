@@ -81,7 +81,10 @@ export default function Home() {
         .from("Notes")
         .select("*")
         .eq("user_id", noteID)
-        .eq("member_id", noteID);
+        .eq("member_id", noteID)
+        .eq("owner_id", noteID)
+        .eq("type", "group")
+        .eq("type", "private");
 
       setNotes(data);
     };
