@@ -75,18 +75,20 @@ export default function Home() {
 
   useEffect(() => {
     const getNotes = async () => {
-      const noteID = user?.id || GuestId;
-      if (!noteID) return;
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("Notes")
         .select("*")
-        .eq("user_id", noteID)
-        .eq("member_id", noteID)
-        .eq("owner_id", noteID)
-        .eq("type", "group")
-        .eq("type", "private");
+        .or(
+          `
+        and(type.eq.private,user_id.eq.${userId}),
+        and(type.eq.group,owner_id.eq.${userId}),
+        and(type.eq.group,member_id.eq.${userId})
+        `
+        );
 
-      setNotes(data);
+      if (!error) {
+        setNotes(data);
+      }
     };
 
     getNotes();
