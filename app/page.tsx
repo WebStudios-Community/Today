@@ -77,7 +77,11 @@ export default function Home() {
     const getNotes = async () => {
       const noteID = user?.id || GuestId;
       if (!noteID) return;
-      const { data } = await supabase.from("Notes").select("*");
+      const { data } = await supabase
+        .from("Notes")
+        .select("*")
+        .eq("user_id", noteID)
+        .eq("member_id", noteID);
 
       setNotes(data);
     };
