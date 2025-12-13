@@ -78,6 +78,7 @@ export default function Home() {
       const { data, error } = await supabase
         .from("Notes")
         .select("*")
+        .eq("user_id", userId)
         .or(
           `
         and(type.eq.private,user_id.eq.${userId}),
